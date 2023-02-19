@@ -1,0 +1,42 @@
+version: '3.5'
+name: app_socket
+services:
+  app:
+    build: 
+      context: ./client
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - db-net
+    depends_on:
+      - db
+
+  server:
+    build: 
+      context: ./server
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - db-net
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    command: mysqld --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+      - ./db/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - db-net
+    ports:
+      - 8086:3306
+  
+networks:
+  db-net:
+      
